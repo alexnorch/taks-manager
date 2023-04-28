@@ -1,20 +1,26 @@
-require("./db/mongoose");
-
+const bcrypt = require("bcryptjs");
 const express = require("express");
+
+require("./db/mongoose");
 
 // Routes
 const userRouter = require("../src/routers/user");
 const taskRouter = require("../src/routers/task");
 
-// Models
-const User = require("./models/user.js");
-const Task = require("./models/task.js");
-
-// Utils
-const { filterFields } = require("./utils/index");
-
 const app = express();
 const port = process.env.PORT || 3000;
+
+//
+// This is how express middlewares work
+//
+
+// app.use((req, res, next) => {
+//   if (req.method === "GET") {
+//     res.send("GET request are disabled");
+//   } else {
+//     next();
+//   }
+// });
 
 app.use(express.json());
 app.use(userRouter);
