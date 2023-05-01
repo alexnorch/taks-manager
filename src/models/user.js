@@ -2,55 +2,64 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+
 const Task = require("../models/task");
 
-const userSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-  password: {
-    type: String,
-    required: true,
-    minlength: [6, "Must be grater then 6 characters"],
-    validate(value) {
-      if (value.toLowerCase().includes("password")) {
-        throw new Error("Password cannot contain the word 'password'");
-      }
+const userSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+      trim: true,
     },
-    trim: true,
-  },
-  email: {
-    unique: true,
-    type: String,
-    required: true,
-    lowercase: true,
-    validate(value) {
-      if (!validator.isEmail(value)) {
-        throw new Error("Email is invalid");
-      }
+    password: {
+      type: String,
+      required: true,
+      minlength: [6, "Must be grater then 6 characters"],
+      validate(value) {
+        if (value.toLowerCase().includes("password")) {
+          throw new Error("Password cannot contain the word 'password'");
+        }
+      },
+      trim: true,
     },
-  },
-  age: {
-    type: Number,
-    required: true,
-    default: 0,
-    validate(value) {
-      if (value < 0) {
-        throw new Error("Age must be a positive number");
-      }
-    },
-  },
-  tokens: [
-    {
-      token: {
-        type: String,
-        required: true,
+    email: {
+      unique: true,
+      type: String,
+      required: true,
+      lowercase: true,
+      validate(value) {
+        if (!validator.isEmail(value)) {
+          throw new Error("Email is invalid");
+        }
       },
     },
-  ],
-});
+    age: {
+      type: Number,
+      required: true,
+      default: 0,
+      validate(value) {
+        if (value < 0) {
+          throw new Error("Age must be a positive number");
+        }
+      },
+    },
+    tokens: [
+      {
+        token: {
+          type: String,
+          required: true,
+        },
+      },
+    ],
+    avatar: {
+      type: Buffer,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
 
 // Hash the plain text password before saving
 userSchema.pre("save", async function (next) {
@@ -92,6 +101,7 @@ userSchema.methods.toJSON = function () {
 
   delete userObj.password;
   delete userObj.tokens;
+  delete userObj.avatar;
 
   return userObj;
 };

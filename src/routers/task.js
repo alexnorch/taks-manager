@@ -21,10 +21,31 @@ router.post("/tasks", auth, async (req, res) => {
 
 // Getting all tasks
 router.get("/tasks", auth, async (req, res) => {
+  const { completed, limit, skip, sortBy } = req.query;
+  const match = {};
+  const sort = {};
+
+  if (completed) {
+    match.completed = completed === "true";
+  }
+
+  if (sortBy) {
+    const parts = sortBy.split(":");
+    sort[parts[0]] = parts[1] === "desc" ? -1 : 1;
+  }
+
   try {
     // Virtual fields doesn't show in the output
     // const tasks = await Task.find({ author: req.user._id });
-    const user = await req.user.populate("tasks");
+    const user = await req.user.populate({
+      path: "tasks",
+      match,
+      options: {
+        limit: parseInt(limit),
+        skip: parseInt(skip),
+        sort,
+      },
+    });
     res.send(user.tasks);
   } catch (error) {
     res.sendStatus(500);
